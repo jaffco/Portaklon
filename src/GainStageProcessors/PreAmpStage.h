@@ -9,7 +9,7 @@
 class PreAmpStage : public AudioProcessor
 {
 public:
-    PreAmpStage(float sampleRate) : AudioProcessor(sampleRate)
+    PreAmpStage(float sampleRate, int blockSize) : AudioProcessor(sampleRate)
     {
         C3 = std::make_unique<WaveDigitalFilter::Capacitor> (0.1e-6, this->sampleRate);
         C5 = std::make_unique<WaveDigitalFilter::Capacitor> (68.0e-9, this->sampleRate);
@@ -29,7 +29,7 @@ public:
         I1 = std::make_unique<WaveDigitalFilter::PolarityInverter> (S3.get());
         Vin.connectToNode (I1.get());
 
-        ff1Current.resize(512);
+        ff1Current.resize(blockSize);
     }
 
     void setGain (float gain)

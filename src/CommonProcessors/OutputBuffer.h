@@ -11,9 +11,9 @@ public:
         setLevel (0.5);
     }
 
-    void setLevel(double level)
+    void setLevel(float level)
     {
-        double coefficients[5];
+        float coefficients[5];
 
         const float R1 = 560.0f + (1.0f - level) * 10000.0f;
         const float R2 = level * 10000.0f + 1.0f;

@@ -9,7 +9,7 @@ class SummingAmp : public AudioFilterBiquad
 public:
     SummingAmp()
     {
-        double coefficients[5];
+        float coefficients[5];
 
         // component values
         constexpr float R20 = (float) 392e3;

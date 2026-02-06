@@ -21,9 +21,9 @@ public:
         return sqrt (-radicand) / (2.0f * a);
     }
 
-    void setGain(double gain)
+    void setGain(float gain)
     {
-        double coefficients[5];
+        float coefficients[5];
 
         // component values
         const float curR10b = (1.0f - gain) * 100000.0f + 2000.0f;

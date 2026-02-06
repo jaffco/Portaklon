@@ -9,7 +9,7 @@ class InputBuffer : public AudioFilterBiquad
 public:
     InputBuffer()
     {
-        double coefficients[5];
+        float coefficients[5];
 
         // component values
         constexpr float R1 = 10000.0f;

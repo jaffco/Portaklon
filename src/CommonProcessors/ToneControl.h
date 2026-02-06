@@ -12,9 +12,9 @@ public:
         setTreble (0.5);
     }
 
-    void setTreble (double treble)
+    void setTreble (float treble)
     {
-        double coefficients[5];
+        float coefficients[5];
 
         constexpr float Rpot = (float) 10e3;
         constexpr float C = (float) 3.9e-9;

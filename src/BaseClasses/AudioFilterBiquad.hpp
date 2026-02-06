@@ -10,14 +10,14 @@ protected:
 public:
     AudioFilterBiquad() = default;
 
-    void setCoefficients(int stage, double coeffs[5])
+    void setCoefficients(int stage, float coeffs[5])
     {
         // Assuming single stage biquad, stage ignored
-        b0 = static_cast<float>(coeffs[0]);
-        b1 = static_cast<float>(coeffs[1]);
-        b2 = static_cast<float>(coeffs[2]);
-        a1 = static_cast<float>(coeffs[3]);
-        a2 = static_cast<float>(coeffs[4]);
+        b0 = coeffs[0];
+        b1 = coeffs[1];
+        b2 = coeffs[2];
+        a1 = coeffs[3];
+        a2 = coeffs[4];
     }
 
     void process(float* in, float* out, int numSamples)

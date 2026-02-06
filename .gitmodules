@@ -1,0 +1,3 @@
+[submodule "example/rtaudio"]
+	path = example/rtaudio
+	url = https://github.com/thestk/rtaudio.git

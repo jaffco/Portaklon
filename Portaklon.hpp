@@ -22,25 +22,30 @@ Level: Ranges [0-1], 0.5 default
 
 class Portaklon {
 private:
-  InputBuffer mInputBuffer;
+  std::unique_ptr<InputBuffer> mInputBuffer;
   std::unique_ptr<PreAmpStage> mPreAmpStage;
-  AmpStage mAmpStage;
+  std::unique_ptr<AmpStage> mAmpStage;
   std::unique_ptr<ClippingStage> mClippingStage;
   std::unique_ptr<FF1Current> mFF1;
   std::unique_ptr<FeedForward2> mFF2;
-  SummingAmp mSummingAmp;
-  ToneControl mToneControl;
-  OutputBuffer mOutputBuffer;
+  std::unique_ptr<SummingAmp> mSummingAmp;
+  std::unique_ptr<ToneControl> mToneControl;
+  std::unique_ptr<OutputBuffer> mOutputBuffer;
 
   std::vector<float> tempBuffers[10]; // temporary buffers for processing
 
 public:
 
   void init(float sampleRate, int blockSize) {
+    mInputBuffer = std::make_unique<InputBuffer>(sampleRate);
     mPreAmpStage = std::make_unique<PreAmpStage>(sampleRate, blockSize);
     mClippingStage = std::make_unique<ClippingStage>(sampleRate);
     mFF2 = std::make_unique<FeedForward2>(sampleRate);
     mFF1 = std::make_unique<FF1Current>(*mPreAmpStage, sampleRate);
+    mAmpStage = std::make_unique<AmpStage>(sampleRate);
+    mSummingAmp = std::make_unique<SummingAmp>(sampleRate);
+    mToneControl = std::make_unique<ToneControl>(sampleRate);
+    mOutputBuffer = std::make_unique<OutputBuffer>(sampleRate);
 
     for (auto& buf : tempBuffers) {
       buf.resize(blockSize);
@@ -54,15 +59,15 @@ public:
 
   void process(float* inputBuffer, float* outputBuffer, const int numSamples) {
     // Input -> InputBuffer -> PreAmpStage
-    mInputBuffer.process(inputBuffer, tempBuffers[0].data(), numSamples);
+    mInputBuffer->process(inputBuffer, tempBuffers[0].data(), numSamples);
     mPreAmpStage->processBlock(tempBuffers[0].data(), tempBuffers[1].data(), numSamples);
 
     // PreAmpStage -> AmpStage -> ClippingStage
-    mAmpStage.process(tempBuffers[1].data(), tempBuffers[2].data(), numSamples);
+    mAmpStage->process(tempBuffers[1].data(), tempBuffers[2].data(), numSamples);
     mClippingStage->processBlock(tempBuffers[2].data(), tempBuffers[3].data(), numSamples);
 
     // Input -> FF2
-    mInputBuffer.process(inputBuffer, tempBuffers[4].data(), numSamples);
+    mInputBuffer->process(inputBuffer, tempBuffers[4].data(), numSamples);
     mFF2->processBlock(tempBuffers[4].data(), tempBuffers[5].data(), numSamples);
 
     // FF1 from PreAmpStage
@@ -74,24 +79,24 @@ public:
     }
 
     // Sum -> SummingAmp -> ToneControl -> OutputBuffer
-    mSummingAmp.process(tempBuffers[7].data(), tempBuffers[8].data(), numSamples);
-    mToneControl.process(tempBuffers[8].data(), tempBuffers[9].data(), numSamples);
-    mOutputBuffer.process(tempBuffers[9].data(), outputBuffer, numSamples);
+    mSummingAmp->process(tempBuffers[7].data(), tempBuffers[8].data(), numSamples);
+    mToneControl->process(tempBuffers[8].data(), tempBuffers[9].data(), numSamples);
+    mOutputBuffer->process(tempBuffers[9].data(), outputBuffer, numSamples);
   }
 
   // Parameter setters
   void setGain(float gain) {
     if (mPreAmpStage) mPreAmpStage->setGain(gain);
-    mAmpStage.setGain(gain);
+    if (mAmpStage) mAmpStage->setGain(gain);
     if (mFF2) mFF2->setGain(gain);
   }
 
   void setTreble(float treble) {
-    mToneControl.setTreble(treble);
+    if (mToneControl) mToneControl->setTreble(treble);
   }
 
   void setLevel(float level) {
-    mOutputBuffer.setLevel(level);
+    if (mOutputBuffer) mOutputBuffer->setLevel(level);
   }
   
 };

@@ -1,13 +1,13 @@
 #ifndef SUMMINGAMP_H_INCLUDED
 #define SUMMINGAMP_H_INCLUDED
 
-#include <Audio.h>
 #include "../BaseClasses/AudioFilterBiquad.hpp"
 
 class SummingAmp : public AudioFilterBiquad
 {
 public:
-    SummingAmp()
+    SummingAmp() = delete;
+    SummingAmp(float sampleRate)
     {
         float coefficients[5];
 
@@ -21,7 +21,7 @@ public:
         const auto a0s = C13 * R20;
         const auto a1s = 1.0f;
 
-        const auto K = 2.0f * AUDIO_SAMPLE_RATE_EXACT;
+        const auto K = 2.0f * sampleRate;
         const auto a0 = a0s * K + a1s;
         
         /* b0 */ coefficients[0] = ( b0s * K + b1s) / a0;

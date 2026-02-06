@@ -1,13 +1,13 @@
 #ifndef TONECONTROL_H_INCLUDED
 #define TONECONTROL_H_INCLUDED
 
-#include <Audio.h>
 #include "../BaseClasses/AudioFilterBiquad.hpp"
 
 class ToneControl : public AudioFilterBiquad
 {
 public:
-    ToneControl()
+    ToneControl() = delete;
+    ToneControl(float sampleRate) : fs(sampleRate)
     {
         setTreble (0.5);
     }
@@ -24,7 +24,7 @@ public:
         constexpr float G4 = 1.0f / (float) 100e3;
 
         constexpr float wc = G1 / C; // frequency to match
-        const auto K = wc / tan (wc / (2.0f * AUDIO_SAMPLE_RATE_EXACT)); // frequency warp to match transition freq
+        const auto K = wc / tan (wc / (2.0f * fs)); // frequency warp to match transition freq
 
         // analog coefficients
         const auto b0s = C * (G1 + G2);
@@ -47,6 +47,9 @@ public:
 
         setCoefficients(0, coefficients);
     }
+
+private:
+    float fs;
 };
 
 #endif // TONECONTROL_H_INCLUDED

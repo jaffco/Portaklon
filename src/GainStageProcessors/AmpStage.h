@@ -1,13 +1,13 @@
 #ifndef AMPSTAGE_H_INCLUDED
 #define AMPSTAGE_H_INCLUDED
 
-#include <Audio.h>
 #include "../BaseClasses/AudioFilterBiquad.hpp"
 
 class AmpStage : public AudioFilterBiquad
 {
 public:
-    AmpStage()
+    AmpStage() = delete;
+    AmpStage(float sampleRate) : fs(sampleRate)
     {
         setGain (0.5);
     }
@@ -42,8 +42,8 @@ public:
 
         // frequency warping
         const float wc = calcPoleFreq (a0s, a1s, a2s);
-        const auto K = wc == 0.0f ? 2.0f * AUDIO_SAMPLE_RATE_EXACT
-            : wc / tan (wc / (2.0f * AUDIO_SAMPLE_RATE_EXACT));
+        const auto K = wc == 0.0f ? 2.0f * fs
+            : wc / tan (wc / (2.0f * fs));
         const auto KSq = K * K;
 
         // bilinear transform
@@ -56,6 +56,9 @@ public:
 
         setCoefficients(0, coefficients);
     }
+
+private:
+    float fs;
 };
 
 #endif // AMPSTAGE_H_INCLUDED

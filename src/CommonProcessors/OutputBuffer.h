@@ -1,12 +1,12 @@
 #ifndef OUTPUTBUFFER_H_INCLUDED
 #define OUTPUTBUFFER_H_INCLUDED
 
-#include <Audio.h>
 
 class OutputBuffer : public AudioFilterBiquad
 {
 public:
-    OutputBuffer()
+    OutputBuffer() = delete;
+    OutputBuffer(float sampleRate) : fs(sampleRate)
     {
         setLevel (0.5);
     }
@@ -26,7 +26,7 @@ public:
         const auto a1s = 1.0f;
 
         // bilinear transform
-        const auto K = 2.0f * AUDIO_SAMPLE_RATE_EXACT;
+        const auto K = 2.0f * fs;
         const auto a0 = a0s * K + a1s;
 
         /* b0 */ coefficients[0] = ( b0s * K + b1s) / a0;
@@ -37,6 +37,9 @@ public:
 
         setCoefficients(0, coefficients);
     }
+
+private:
+    float fs;
 };
 
 #endif // OUTPUTBUFFER_H_INCLUDED

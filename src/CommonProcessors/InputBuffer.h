@@ -1,13 +1,13 @@
 #ifndef INPUT_BUFFER_H_INCLUDED
 #define INPUT_BUFFER_H_INCLUDED
 
-#include <Audio.h>
 #include "../BaseClasses/AudioFilterBiquad.hpp"
 
 class InputBuffer : public AudioFilterBiquad
 {
 public:
-    InputBuffer()
+    InputBuffer() = delete;
+    InputBuffer(float sampleRate)
     {
         float coefficients[5];
 
@@ -23,7 +23,7 @@ public:
         const auto a1s = 1.0f;
 
         // bilinear transform
-        const auto K = 2.0f * AUDIO_SAMPLE_RATE_EXACT;
+        const auto K = 2.0f * sampleRate;
         const auto a0 = a0s * K + a1s;
 
         /* b0 */ coefficients[0] = ( b0s * K + b1s) / a0;

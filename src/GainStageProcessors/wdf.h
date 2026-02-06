@@ -17,25 +17,25 @@ public:
     virtual inline void calcImpedance() {}
     virtual inline void propagateImpedance() {}
 
-    virtual inline void incident (double x) noexcept {}
-    virtual inline double reflected() noexcept { return 0.0; }
+    virtual inline void incident (float x) noexcept {}
+    virtual inline float reflected() noexcept { return 0.0; }
 
 
-    inline double voltage() const noexcept
+    inline float voltage() const noexcept
     {
         return (a + b) / 2.0;
     }
 
-    inline double current() const noexcept
+    inline float current() const noexcept
     {
         return (a - b) / (2.0 * R);
     }
 
 public:
-    double a = 0.0; // incident wave
-    double b = 0.0; // reflected wave
-    double R = 1.0e-9;
-    double G = 1.0 / R;
+    float a = 0.0; // incident wave
+    float b = 0.0; // reflected wave
+    float R = 1.0e-9;
+    float G = 1.0 / R;
 
 private:
     const std::string type;
@@ -69,7 +69,7 @@ protected:
 class Resistor : public WDFNode
 {
 public:
-    Resistor (double value) :
+    Resistor (float value) :
         WDFNode ("Resistor"),
         R_value (value)
     {
@@ -77,7 +77,7 @@ public:
     }
     virtual ~Resistor() {}
 
-    void setResistanceValue (double newR)
+    void setResistanceValue (float newR)
     {
         if (newR == R_value)
             return;
@@ -92,26 +92,26 @@ public:
         G = 1.0 / R;
     }
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = 0.0;
         return b;
     }
 
 private:
-    double R_value = 1.0e-9;
+    float R_value = 1.0e-9;
 };
 
 /** WDF Capacitor Node */
 class Capacitor : public WDFNode
 {
 public:
-    Capacitor (double value, double fs, double alpha = 1.0) :
+    Capacitor (float value, float fs, float alpha = 1.0) :
         WDFNode ("Capacitor"),
         C_value (value),
         fs (fs),
@@ -123,7 +123,7 @@ public:
     }
     virtual ~Capacitor() {}
 
-    void setCapacitanceValue (double newC)
+    void setCapacitanceValue (float newC)
     {
         if (newC == C_value)
             return;
@@ -138,27 +138,27 @@ public:
         G = 1.0 / R;
     }
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
         z = a;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = b_coef * b + a_coef * z;
         return b;
     }
 
 private:
-    double C_value = 1.0e-6;
-    double z = 0.0;
+    float C_value = 1.0e-6;
+    float z = 0.0;
 
-    const double fs;
-    const double alpha;
+    const float fs;
+    const float alpha;
 
-    const double b_coef;
-    const double a_coef;
+    const float b_coef;
+    const float a_coef;
 };
 
 
@@ -166,7 +166,7 @@ private:
 class Inductor : public WDFNode
 {
 public:
-    Inductor (double value, double fs, double alpha = 1.0) :
+    Inductor (float value, float fs, float alpha = 1.0) :
         WDFNode ("Inductor"),
         L_value (value),
         fs (fs),
@@ -178,7 +178,7 @@ public:
     }
     virtual ~Inductor() {}
 
-    void setInductanceValue (double newL)
+    void setInductanceValue (float newL)
     {
         if (newL == L_value)
             return;
@@ -193,27 +193,27 @@ public:
         G = 1.0 / R;
     }
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
         z = a;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = b_coef * b - a_coef * z;
         return b;
     }
 
 private:
-    double L_value = 1.0e-6;
-    double z = 0.0;
+    float L_value = 1.0e-6;
+    float z = 0.0;
 
-    const double fs;
-    const double alpha;
+    const float fs;
+    const float alpha;
 
-    const double b_coef;
-    const double a_coef;
+    const float b_coef;
+    const float a_coef;
 };
 
 /** WDF Switch */
@@ -229,12 +229,12 @@ public:
 
     void setClosed (bool shouldClose) { closed = shouldClose; }
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = closed ? -a : a;
         return b;
@@ -259,12 +259,12 @@ public:
 
     inline void calcImpedance() override {}
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = a;
         return b;
@@ -286,12 +286,12 @@ public:
 
     inline void calcImpedance() override {}
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = -a;
         return b;
@@ -317,13 +317,13 @@ public:
         G = 1.0 / R;
     }
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
         port1->incident (-x);
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = -port1->reflected();
         return b;
@@ -337,7 +337,7 @@ private:
 class YParameter : public WDFNode
 {
 public:
-    YParameter (WDFNode* port1, double y11, double y12, double y21, double y22) :
+    YParameter (WDFNode* port1, float y11, float y12, float y21, float y22) :
         WDFNode ("YParameter"),
         port1 (port1)
     {
@@ -356,22 +356,22 @@ public:
         R = (port1->R * y[0][0] + 1.0) / denominator;
         G = 1.0 / R;
 
-        double rSq = port1->R * port1->R;
-        double num1A = -y[1][1] * rSq * y[0][0] * y[0][0];
-        double num2A = y[0][1] * y[1][0] * rSq * y[0][0];
+        float rSq = port1->R * port1->R;
+        float num1A = -y[1][1] * rSq * y[0][0] * y[0][0];
+        float num2A = y[0][1] * y[1][0] * rSq * y[0][0];
 
         A = (num1A + num2A + y[1][1]) / (denominator * (port1->R * y[0][0] + 1.0));
         B = -port1->R * y[0][1] / (port1->R * y[0][0] + 1.0);
         C = -y[1][0] / denominator;
     }
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
         port1->incident(A * port1->b + B * x);
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = C * port1->reflected();
         return b;
@@ -379,12 +379,12 @@ public:
 
 private:
     WDFNode* port1;
-    double y[2][2] = {{ 0.0, 0.0 }, { 0.0, 0.0 }};
+    float y[2][2] = {{ 0.0, 0.0 }, { 0.0, 0.0 }};
     
-    double denominator = 1.0;
-    double A = 1.0f;
-    double B = 1.0f;
-    double C = 1.0f;
+    float denominator = 1.0;
+    float A = 1.0f;
+    float B = 1.0f;
+    float C = 1.0f;
 };
 
 /** WDF 3-port adapter base class */
@@ -425,13 +425,13 @@ public:
         port2Reflect = port2->G/G;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = port1Reflect * port1->reflected() + port2Reflect * port2->reflected();
         return b;
     }
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         port1->incident (x + (port2->b - port1->b) * port2Reflect);
         port2->incident (x + (port2->b - port1->b) * -port1Reflect);
@@ -439,8 +439,8 @@ public:
     }
 
 private:
-    double port1Reflect = 1.0;
-    double port2Reflect = 1.0;
+    float port1Reflect = 1.0;
+    float port2Reflect = 1.0;
 };
 
 /** WDF 3-port series adaptor */
@@ -462,13 +462,13 @@ public:
         port2Reflect = port2->R/R;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = -(port1->reflected() + port2->reflected());
         return b;
     }
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         port1->incident (port1->b - port1Reflect * (x + port1->b + port2->b));
         port2->incident (port2->b - port2Reflect * (x + port1->b + port2->b)); 
@@ -477,15 +477,15 @@ public:
     }
 
 private:
-    double port1Reflect = 1.0;
-    double port2Reflect = 1.0;
+    float port1Reflect = 1.0;
+    float port2Reflect = 1.0;
 };
 
 /** WDF Voltage source with resistance */
 class ResistiveVoltageSource : public WDFNode
 {
 public:
-    ResistiveVoltageSource (double value = 1.0e-9) :
+    ResistiveVoltageSource (float value = 1.0e-9) :
         WDFNode ("Resistive Voltage"),
         R_value (value)
     {
@@ -493,7 +493,7 @@ public:
     }
     virtual ~ResistiveVoltageSource() {}
 
-    void setResistanceValue (double newR)
+    void setResistanceValue (float newR)
     {
         if (newR == R_value)
             return;
@@ -508,22 +508,22 @@ public:
         G = 1.0 / R;
     }
 
-    void setVoltage (double newV) { Vs = newV; }
+    void setVoltage (float newV) { Vs = newV; }
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = Vs;
         return b;
     }
 
 private:
-    double Vs;
-    double R_value = 1.0e-9;
+    float Vs;
+    float R_value = 1.0e-9;
 };
 
 /** WDF Voltage source with 1 pOhm resistance */
@@ -538,28 +538,28 @@ public:
 
     inline void calcImpedance() {}
 
-    void setVoltage (double newV) { Vs = newV; }
+    void setVoltage (float newV) { Vs = newV; }
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = -a + 2.0 * Vs;
         return b;
     }
 
 private:
-    double Vs;
+    float Vs;
 };
 
 /** WDF Current source with resistance */
 class ResistiveCurrentSource : public WDFNode
 {
 public:
-    ResistiveCurrentSource (double value=1.0e9) :
+    ResistiveCurrentSource (float value=1.0e9) :
         WDFNode ("Resistive Current"),
         R_value (value)
     {
@@ -567,7 +567,7 @@ public:
     }
     virtual ~ResistiveCurrentSource() {}
 
-    void setResistanceValue (double newR)
+    void setResistanceValue (float newR)
     {
         if (newR == R_value)
             return;
@@ -582,22 +582,22 @@ public:
         G = 1.0 / R;
     }
 
-    void setCurrent (double newI) { Is = newI; }
+    void setCurrent (float newI) { Is = newI; }
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = 2 * R * Is;
         return b;
     }
 
 private:
-    double Is;
-    double R_value = 1.0e9;
+    float Is;
+    float R_value = 1.0e9;
 };
 
 /** WDF Current source with 1 GOhm resistance */
@@ -616,21 +616,21 @@ public:
         G = 1.0 / R;
     }
 
-    void setCurrent (double newI) { Is = newI; }
+    void setCurrent (float newI) { Is = newI; }
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         b = 2 * next->R * Is + a;
         return b;
     }
 
 private:
-    double Is;
+    float Is;
 };
 
 template <typename T> inline int signum (T val)
@@ -646,7 +646,7 @@ template <typename T> inline int signum (T val)
 class DiodePair : public WDFNode
 {
 public:
-    DiodePair (double Is, double Vt) :
+    DiodePair (float Is, float Vt) :
         WDFNode ("DiodePair"),
         Is (Is),
         Vt (Vt)
@@ -656,28 +656,28 @@ public:
 
     inline void calcImpedance() {}
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         // See eqn (18) from reference paper
-        double lambda = (double) signum (a);
+        float lambda = (float) signum (a);
         b = a + 2 * lambda * (next->R * Is - Vt * omega4 (float (log (next->R * Is / Vt) + (lambda * a + next->R * Is) / Vt)));
         return b;
     }
 
 private:
-    const double Is; // reverse saturation current
-    const double Vt; // thermal voltage
+    const float Is; // reverse saturation current
+    const float Vt; // thermal voltage
 };
 
 class Diode : public WDFNode
 {
 public:
-    Diode (double Is, double Vt) :
+    Diode (float Is, float Vt) :
         WDFNode ("Diode"),
         Is (Is),
         Vt (Vt)
@@ -687,12 +687,12 @@ public:
 
     inline void calcImpedance() {}
 
-    inline void incident (double x) noexcept override
+    inline void incident (float x) noexcept override
     {
         a = x;
     }
 
-    inline double reflected() noexcept override
+    inline float reflected() noexcept override
     {
         // See eqn (10) from reference paper
         b = a + 2 * next->R * Is - 2 * Vt * omega4 (float (log (next->R * Is / Vt) + (a + next->R * Is) / Vt));
@@ -700,8 +700,8 @@ public:
     }
 
 private:
-    const double Is; // reverse saturation current
-    const double Vt; // thermal voltage
+    const float Is; // reverse saturation current
+    const float Vt; // thermal voltage
 };
 
 }

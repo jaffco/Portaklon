@@ -12,7 +12,7 @@ Run `make` to build the `portaklon_audio` executable in the `build/` directory.
 ./build/portaklon_audio [sample_rate]
 ```
 
-- `sample_rate`: Sample rate in Hz (default: 44100)
+- `sample_rate`: Sample rate in Hz (default: 48000)
 
 The app will open the default input and output audio devices, process the input through Portaklon, and output the result.
 

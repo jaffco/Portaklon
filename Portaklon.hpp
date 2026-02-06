@@ -33,7 +33,7 @@ private:
   std::unique_ptr<OutputBuffer> mOutputBuffer;
 
   std::vector<float> tempBuffers[10]; // temporary buffers for processing
-  const float outputScaler = 1.f / 39873.6f;
+  const float outputScaler = 0.001f;
 
 public:
 

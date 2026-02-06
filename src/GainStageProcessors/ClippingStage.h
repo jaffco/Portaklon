@@ -1,23 +1,17 @@
 #ifndef CLIPPINGSTAGE_H_INCLUDED
 #define CLIPPINGSTAGE_H_INCLUDED
 
-#include <Audio.h>
 #include <memory>
+#include "../BaseClasses/AudioProcessor.hpp"
 #include "wdf.h"
 
-extern "C"{
-  int __exidx_start(){ return -1;}
-  int __exidx_end(){ return -1; }
-}
-
-class ClippingStage : public AudioStream
+class ClippingStage : public AudioProcessor
 {
 public:
-    ClippingStage() : AudioStream(1, inputQueueArray)
+    ClippingStage(float sampleRate) : AudioProcessor(sampleRate)
     {
-        const double sampleRate = AUDIO_SAMPLE_RATE_EXACT;
-        C9  = std::make_unique<WaveDigitalFilter::Capacitor> (1.0e-6, sampleRate);
-        C10 = std::make_unique<WaveDigitalFilter::Capacitor> (1.0e-6, sampleRate);
+        C9  = std::make_unique<WaveDigitalFilter::Capacitor> (1.0e-6, this->sampleRate);
+        C10 = std::make_unique<WaveDigitalFilter::Capacitor> (1.0e-6, this->sampleRate);
         Vbias.setVoltage (4.5);
 
         I1 = std::make_unique<WaveDigitalFilter::PolarityInverter> (&Vin);
@@ -30,7 +24,7 @@ public:
 
     inline float processSample (float x)
     {
-        Vin.setVoltage ((double) x + 4.5); // bias
+        Vin.setVoltage (x + 4.5); // bias
 
         D23.incident (P1->reflected());
         P1->incident (D23.reflected());
@@ -39,29 +33,14 @@ public:
         return (float) y;
     }
 
-    void update(void) override
+    void processBlock(float* in, float* out, int numSamples) override
     {
-        audio_block_t *block;
-        block = receiveWritable();
-        if (!block) return;
-
-        int16_t i, x, y;
-        float xf, yf;
-        for (i = 0; i < AUDIO_BLOCK_SAMPLES; i++) {
-            x = block->data[i];
-            xf = static_cast<float> (x) / 32768.0f;
-            yf = 1000 * processSample(xf);
-            y =  static_cast<int> (yf * 32768.0f);
-            block->data[i] = y;
+        for (int sample = 0; sample < numSamples; sample++) {
+            out[sample] = 1000.f * processSample(in[sample]);
         }
-
-        transmit(block);
-        release(block);
     }
 
 private:
-    audio_block_t *inputQueueArray[1];
-
     WaveDigitalFilter::ResistiveVoltageSource Vin;
     std::unique_ptr<WaveDigitalFilter::Capacitor> C9;
     WaveDigitalFilter::Resistor R13 { 1000.0 };

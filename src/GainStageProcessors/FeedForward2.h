@@ -1,20 +1,19 @@
 #ifndef FEEDFORWARD2_H_INCLUDED
 #define FEEDFORWARD2_H_INCLUDED
 
-#include <Audio.h>
 #include <memory>
+#include "../BaseClasses/AudioProcessor.hpp"
 #include "wdf.h"
 
-class FeedForward2 : public AudioStream
+class FeedForward2 : public AudioProcessor
 {
 public:
-    FeedForward2() : AudioStream(1, inputQueueArray)
+    FeedForward2(float sampleRate) : AudioProcessor(sampleRate)
     {
-        const double sampleRate = AUDIO_SAMPLE_RATE_EXACT;
-        C4 = std::make_unique<WaveDigitalFilter::Capacitor> (68e-9, sampleRate);
-        C6 = std::make_unique<WaveDigitalFilter::Capacitor> (390e-9, sampleRate);
-        C11 = std::make_unique<WaveDigitalFilter::Capacitor> (2.2e-9, sampleRate);
-        C12 = std::make_unique<WaveDigitalFilter::Capacitor> (27e-9, sampleRate);
+        C4 = std::make_unique<WaveDigitalFilter::Capacitor> (68e-9, this->sampleRate);
+        C6 = std::make_unique<WaveDigitalFilter::Capacitor> (390e-9, this->sampleRate);
+        C11 = std::make_unique<WaveDigitalFilter::Capacitor> (2.2e-9, this->sampleRate);
+        C12 = std::make_unique<WaveDigitalFilter::Capacitor> (27e-9, this->sampleRate);
         Vbias.setVoltage (0.0);
 
         S1 = std::make_unique<WaveDigitalFilter::WDFSeries> (C12.get(), &R18);
@@ -39,44 +38,30 @@ public:
 
     void setGain (float gain)
     {
-        RVTop.setResistanceValue (std::max ((double) gain * 100e3, 1.0));
-        RVBot.setResistanceValue (std::max ((1.0 - (double) gain) * 100e3, 1.0));
+        RVTop.setResistanceValue (std::max (gain * 100e3, 1.0));
+        RVBot.setResistanceValue (std::max ((1.0 - gain) * 100e3, 1.0));
     }
 
     inline float processSample (float x)
     {
-        Vin.setVoltage ((double) x);
+        Vin.setVoltage (x);
 
         Vin.incident (I1->reflected());
         I1->incident (Vin.reflected());
         auto y = R16.current();
 
-        return (float) y;
+        return y;
     }
 
-    void update(void) override
+    void processBlock(float* in, float* out, int numSamples) override
     {
-        audio_block_t *block;
-        block = receiveWritable();
-        if (!block) return;
-
-        int16_t i, x, y;
-        float xf, yf;
-        for (i = 0; i < AUDIO_BLOCK_SAMPLES; i++) {
-            x = block->data[i];
-            xf = static_cast<float> (x) / 32768.0f;
-            yf = 1000 * processSample(xf);
-            y =  static_cast<int> (yf * 32768.0f);
-            block->data[i] = y;
+        for (int i = 0; i < numSamples; ++i)
+        {
+            out[i] = 1000.0f * processSample(in[i]);
         }
-
-        transmit(block);
-        release(block);
     }
 
 private:
-    audio_block_t *inputQueueArray[1];
-
     WaveDigitalFilter::IdealVoltageSource Vin;
     WaveDigitalFilter::ResistiveVoltageSource Vbias;
 

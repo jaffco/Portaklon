@@ -1,30 +1,20 @@
 #ifndef FF1CURRENT_H_INCLUDED
 #define FF1CURRENT_H_INCLUDED
 
-#include <Audio.h>
+#include "../BaseClasses/AudioProcessor.hpp"
 #include "PreAmpStage.h"
 
-class FF1Current : public AudioStream
+class FF1Current : public AudioProcessor
 {
 public:
-    FF1Current(PreAmpStage& preAmp) : AudioStream (0, NULL), preAmp (preAmp) {}
+    FF1Current(PreAmpStage& preAmp, float sampleRate) : AudioProcessor(sampleRate), preAmp(preAmp) {}
 
-    void update(void) override
+    void processBlock(float* in, float* out, int numSamples) override
     {
-        audio_block_t *block;
-        block = receiveWritable();
-        if (!block) return;
-
-        int16_t i, y;
-        float yf;
-        for (i = 0; i < AUDIO_BLOCK_SAMPLES; i++) {
-            yf = preAmp.ff1Current[i];
-            y =  static_cast<int> (yf * 32768.0f);
-            block->data[i] = 1000 * y;
+        for (int i = 0; i < numSamples; ++i)
+        {
+            out[i] = 1000.f * preAmp.ff1Current[i];
         }
-
-        transmit(block);
-        release(block);
     }
 
 private:

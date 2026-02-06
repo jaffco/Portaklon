@@ -1,12 +1,6 @@
 #ifndef PORTAKLON_HPP
 #define PORTAKLON_HPP
 
-#include "CommonProcessors/BypassProcessor.h"
-#include "CommonProcessors/InputBufferProcessor.h"
-#include "CommonProcessors/OutputStageProcessor.h"
-#include "CommonProcessors/ToneFilterProcessor.h"
-#include "GainStageProcessors/GainStageProc.h"
-
 /*
 PARAMS
 Gain: Ranges [0-1], 0.5 default 
@@ -16,26 +10,19 @@ Level: Ranges [0-1], 0.5 default
 
 class Portaklon {
 private:
-  InputBufferProcessor mInputBufferProcessor;
-  ToneFilterProcessor mToneFilterProcessor;
-  OutputStageProc mOutputStageProc;
-  std::unique_ptr<GainStageProc> gainStageProc; // ptr bcz needs sr in constructor 
-  dsp::IIR::Coefficients<float> dcBlockCoefficients;
-  dsp::IIR::Filter<float> dcBlocker;
+  InputBuffer mInputBuffer;
+  PreAmpStage mPreAmpStage;
+  AmpStage mAmpStage;
+  ClippingStage mClippingStage;
+  FF1Current mFF1;
+  FeedForward2 mFF2;
+  SummingAmp mSummingAmp;
+  ToneControl mToneControl;
+  OutputBuffer mOutputBuffer;
 
 public:
 
-  void init(double sampleRate, int blockSize) {
-    gainStageProc = std::make_unique<GainStageProc>(sampleRate);
-    gainStageProc->reset (sampleRate, blockSize);
-    mInputBufferProcessor.prepare((float) sampleRate);
-    mToneFilterProcessor.prepare((float) sampleRate);
-    mOutputStageProc.prepare((float) sampleRate);
-
-    *dcBlocker.state = *dsp::IIR::Coefficients<float>::makeHighPass (sampleRate, 35.0f);
-    dsp::ProcessSpec spec { sampleRate, static_cast<uint32> (blockSize), 2 }; // fixme 
-    dcBlocker.prepare (spec); // fixme 
-  }
+  void init(double sampleRate, int blockSize) {}
 
   void process(float* inputBuffer, float* outputBuffer, const int numSamples) {
     

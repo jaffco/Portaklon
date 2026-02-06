@@ -34,7 +34,6 @@ int audioCallback( void *outputBuffer, void *inputBuffer, unsigned int nBufferFr
   // Interleave mono output to stereo
   float *out = (float *) outputBuffer;
   for (unsigned int i = 0; i < nBufferFrames; ++i) {
-    monoOutput[i] *= 0.001f; 
     out[2 * i] = monoOutput[i];     // Left channel
     out[2 * i + 1] = monoOutput[i]; // Right channel
   }

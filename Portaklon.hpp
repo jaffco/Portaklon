@@ -33,6 +33,7 @@ private:
   std::unique_ptr<OutputBuffer> mOutputBuffer;
 
   std::vector<float> tempBuffers[10]; // temporary buffers for processing
+  const float outputScaler = 1.f / 39873.6f;
 
 public:
 
@@ -82,6 +83,12 @@ public:
     mSummingAmp->process(tempBuffers[7].data(), tempBuffers[8].data(), numSamples);
     mToneControl->process(tempBuffers[8].data(), tempBuffers[9].data(), numSamples);
     mOutputBuffer->process(tempBuffers[9].data(), outputBuffer, numSamples);
+
+    // scale by output scaler
+    for (int i = 0; i < numSamples; ++i) {
+      outputBuffer[i] *= outputScaler;
+    }
+
   }
 
   // Parameter setters

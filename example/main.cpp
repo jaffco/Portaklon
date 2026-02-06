@@ -20,15 +20,24 @@ static void finish( int /*ignore*/ ){ done = true; }
 typedef float MY_TYPE;
 #define FORMAT RTAUDIO_FLOAT32
 
-unsigned int sampleRate = 44100;
-unsigned int channels = 1;
+unsigned int sampleRate = 48000;
+unsigned int inputChannels = 1;
+unsigned int outputChannels = 2;
 
 int audioCallback( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
                    double /*streamTime*/, RtAudioStreamStatus /*status*/, void *data )
 {
   Portaklon *portaklon = (Portaklon *) data;
-  portaklon->process( (float *) inputBuffer, (float *) outputBuffer, nBufferFrames );
-  // memcpy(outputBuffer, inputBuffer, sizeof(float) * nBufferFrames);
+  static float monoOutput[4096]; // Pre-allocated buffer for mono processing
+  portaklon->process( (float *) inputBuffer, monoOutput, nBufferFrames );
+
+  // Interleave mono output to stereo
+  float *out = (float *) outputBuffer;
+  for (unsigned int i = 0; i < nBufferFrames; ++i) {
+    monoOutput[i] *= 0.001f; 
+    out[2 * i] = monoOutput[i];     // Left channel
+    out[2 * i + 1] = monoOutput[i]; // Right channel
+  }
   return 0;
 }
 
@@ -50,13 +59,13 @@ int main( int argc, char *argv[] )
 
   RtAudio::StreamParameters iParams, oParams;
   iParams.deviceId = dac.getDefaultInputDevice();
-  iParams.nChannels = channels;
+  iParams.nChannels = inputChannels;
   iParams.firstChannel = 0;
   oParams.deviceId = dac.getDefaultOutputDevice();
-  oParams.nChannels = channels;
+  oParams.nChannels = outputChannels;
   oParams.firstChannel = 0;
 
-  unsigned int bufferFrames = 256;
+  unsigned int bufferFrames = 128;
 
   Portaklon portaklon;
   portaklon.init( sampleRate, bufferFrames );
